@@ -698,7 +698,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # ---------------- DEMO MODE (pretty console output) ----------------
-        if DEMO_MODE:
+    if DEMO_MODE:
         from datetime import datetime, timedelta
         import random
 
@@ -712,7 +712,6 @@ if __name__ == "__main__":
 
         print("🚀 FastLoop Trader — Multi Asset Sprint Engine")
         print("⚡ Real-Time Momentum Arbitrage System")
-        print("🧪 DEMO RUN (simulation)")
         print("=" * 82)
 
         balance = 1000.00
@@ -721,67 +720,65 @@ if __name__ == "__main__":
         losses = 0
 
         assets_cycle = [
-            "BTC","ETH","SOL","BTC","ETH","SOL",
-            "BTC","ETH","SOL","BTC","ETH","SOL",
-            "BTC","ETH","SOL","BTC"
+            "BTC", "ETH", "SOL",
+            "BTC", "ETH", "SOL",
+            "BTC", "ETH", "SOL",
+            "BTC", "ETH", "SOL",
+            "BTC", "ETH", "SOL",
+            "BTC",
         ]
 
-        def now_ts(i):
+        def now_ts(i: int) -> str:
             t0 = datetime.now()
             return (t0 + timedelta(seconds=i * 14)).strftime("%H:%M:%S")
 
         for i, asset in enumerate(assets_cycle, 1):
-
+            # momentum window simulation
             p_then = base_prices[asset] * (1 + random.uniform(-0.003, 0.003))
-            p_now  = base_prices[asset] * (1 + random.uniform(-0.012, 0.012))
+            p_now = base_prices[asset] * (1 + random.uniform(-0.012, 0.012))
 
             move_pct = ((p_now - p_then) / p_then) * 100
             direction = "up" if move_pct >= 0 else "down"
 
+            # market odds simulation (yes/no)
             yes = random.uniform(0.39, 0.53)
             no = 1 - yes
 
-            usd = random.choice([10,12,15])
+            usd = random.choice([10, 12, 15])
             total_notional += usd
 
             action = "BUY YES" if direction == "up" else "BUY NO"
             fill = yes if action == "BUY YES" else no
-            shares = usd / fill
+            shares = usd / fill if fill > 0 else 0
 
-            # simulate outcome
+            # outcome simulation
             win = random.random() > 0.42
             if win:
                 pnl = usd * random.uniform(0.12, 0.28)
                 wins += 1
+                badge = "✅"
             else:
                 pnl = -usd
                 losses += 1
+                badge = "❌"
 
             balance += pnl
 
-            print(f"\n[{now_ts(i)}] 🔎 {asset} 5m Sprint")
-            print(f"  Price: ${p_now:,.2f} | 5m Move: {move_pct:+.2f}%")
-            print(f"  Odds: YES ${yes:.2f} | NO ${no:.2f}")
-            print(f"  Signal: {action} ${usd}")
-            print(f"  Filled: ~{shares:.1f} shares @ ${fill:.2f}")
+            print(f"\n[{now_ts(i)}] 🔎 {asset} Sprint Scan (5m)")
+            print(f"  Price Feed: ${p_now:,.2f}  |  Prev: ${p_then:,.2f}  |  Move: {move_pct:+.2f}%")
+            print(f"  Market Odds: YES ${yes:.2f} | NO ${no:.2f} | Fee: 10%")
+            print(f"  Execution: {action} ${usd:.2f}  |  Fill: ${fill:.2f}  |  Shares: ~{shares:.1f}")
+            print(f"  Result: {badge} {pnl:+.2f}  |  Balance: ${balance:.2f}")
 
-            if win:
-                print(f"  ✅ Result: +${pnl:.2f}")
-            else:
-                print(f"  ❌ Result: ${pnl:.2f}")
-
-            print(f"  💼 Balance: ${balance:.2f}")
-
-        roi = ((balance - 1000) / 1000) * 100
+        roi = ((balance - 1000.00) / 1000.00) * 100
 
         print("\n" + "=" * 82)
         print("📊 SESSION SUMMARY")
-        print(f"  Trades: {len(assets_cycle)}")
-        print(f"  Wins: {wins}")
-        print(f"  Losses: {losses}")
-        print(f"  Total Volume: ${total_notional:.2f}")
+        print(f"  Trades:        {len(assets_cycle)}")
+        print(f"  Wins / Losses: {wins} / {losses}")
+        print(f"  Total Volume:  ${total_notional:.2f}")
         print(f"  Final Balance: ${balance:.2f}")
-        print(f"  ROI: {roi:+.2f}%")
+        print(f"  ROI:           {roi:+.2f}%")
         print("=" * 82)
 
         sys.exit(0)
@@ -821,3 +818,4 @@ if __name__ == "__main__":
         smart_sizing=args.smart_sizing,
         quiet=args.quiet,
     )
+
